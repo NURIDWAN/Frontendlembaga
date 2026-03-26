@@ -172,3 +172,22 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Infinite scroll animation for QuickLinks */
+@keyframes infinite-scroll-x {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-infinite-scroll-x {
+    animation: infinite-scroll-x var(--scroll-speed, 40s) linear infinite;
+}
+
+.pause-on-hover:hover .animate-infinite-scroll-x,
+.pause-on-hover:focus-within .animate-infinite-scroll-x {
+    animation-play-state: paused;
+}

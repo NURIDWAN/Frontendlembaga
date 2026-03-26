@@ -7,6 +7,12 @@ interface EventsSectionProps {
     events: Event[];
 }
 
+const EVENT_LABELS: Record<string, { timezone: string }> = {
+    id: { timezone: 'WIB' },
+    en: { timezone: '' }, // No timezone suffix for English (or use UTC/local)
+    ar: { timezone: '' }, // No timezone suffix for Arabic
+};
+
 function getTitle(item: Event, locale: string): string {
     if (locale === 'en' && item.title_en) return item.title_en;
     if (locale === 'ar' && item.title_ar) return item.title_ar;
@@ -150,8 +156,8 @@ export default function UpcomingEvents({ events }: EventsSectionProps) {
                                         {event.time_start && (
                                             <span className="flex items-center gap-1">
                                                 <Clock className="h-3.5 w-3.5" />
-                                                {event.time_start.slice(0, 5)}{' '}
-                                                WIB
+                                                {event.time_start.slice(0, 5)}
+                                                {(EVENT_LABELS[lang] || EVENT_LABELS.id).timezone && ` ${(EVENT_LABELS[lang] || EVENT_LABELS.id).timezone}`}
                                             </span>
                                         )}
                                         {event.location && (

@@ -8,6 +8,36 @@ interface BeritaAgendaSectionProps {
     locale: string;
 }
 
+const BERITA_LABELS: Record<
+    string,
+    { no_image: string; timezone: string; news: string; events: string; view_all_news: string; view_all_events: string }
+> = {
+    id: {
+        no_image: 'Tidak ada gambar',
+        timezone: 'WIB',
+        news: 'Berita',
+        events: 'Agenda',
+        view_all_news: 'Lihat Semua Berita',
+        view_all_events: 'Lihat Semua Agenda',
+    },
+    en: {
+        no_image: 'No Image',
+        timezone: '',
+        news: 'News',
+        events: 'Events',
+        view_all_news: 'View All News',
+        view_all_events: 'View All Events',
+    },
+    ar: {
+        no_image: 'لا توجد صورة',
+        timezone: '',
+        news: 'الأخبار',
+        events: 'الأحداث',
+        view_all_news: 'عرض الكل',
+        view_all_events: 'عرض جميع الأحداث',
+    },
+};
+
 function getTitle(
     item: {
         title_id: string;
@@ -113,6 +143,7 @@ export default function BeritaAgendaSection({
 }: BeritaAgendaSectionProps) {
     const displayNews = news.slice(0, 6);
     const displayEvents = events.slice(0, 7);
+    const t = BERITA_LABELS[locale] || BERITA_LABELS.id;
 
     return (
         <section
@@ -123,11 +154,7 @@ export default function BeritaAgendaSection({
                 <div className="grid gap-10 lg:grid-cols-5">
                     <div className="lg:col-span-3">
                         <h2 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-                            {locale === 'ar'
-                                ? 'الأخبار'
-                                : locale === 'en'
-                                  ? 'News'
-                                  : 'Berita'}
+                            {t.news}
                         </h2>
 
                         <div className="grid gap-5 sm:grid-cols-2">
@@ -152,7 +179,7 @@ export default function BeritaAgendaSection({
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-700">
                                                 <span className="text-sm text-gray-400 dark:text-gray-500">
-                                                    No Image
+                                                    {t.no_image}
                                                 </span>
                                             </div>
                                         )}
@@ -160,8 +187,8 @@ export default function BeritaAgendaSection({
                                             {formatDate(
                                                 item.published_at,
                                                 locale,
-                                            )}{' '}
-                                            WIB
+                                            )}
+                                            {t.timezone ? ` ${t.timezone}` : ''}
                                         </span>
                                     </div>
 
@@ -185,11 +212,7 @@ export default function BeritaAgendaSection({
                                 to={`/${locale}/berita`}
                                 className="inline-flex items-center gap-1 text-sm font-medium text-[var(--brand-primary)] transition-colors hover:text-[var(--brand-primary)] dark:text-[var(--brand-primary)] dark:hover:text-[var(--brand-primary)]"
                             >
-                                {locale === 'ar'
-                                    ? 'عرض الكل'
-                                    : locale === 'en'
-                                      ? 'View All News'
-                                      : 'Lihat Semua Berita'}
+                                {t.view_all_news}
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
                         </div>
@@ -197,11 +220,7 @@ export default function BeritaAgendaSection({
 
                     <div className="lg:col-span-2">
                         <h2 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-                            {locale === 'ar'
-                                ? 'الأحداث'
-                                : locale === 'en'
-                                  ? 'Events'
-                                  : 'Agenda'}
+                            {t.events}
                         </h2>
 
                         <div className="space-y-3">
@@ -246,8 +265,8 @@ export default function BeritaAgendaSection({
                                                         {event.time_start.slice(
                                                             0,
                                                             5,
-                                                        )}{' '}
-                                                        WIB
+                                                        )}
+                                                        {t.timezone ? ` ${t.timezone}` : ''}
                                                     </span>
                                                 )}
                                                 {event.location && (
@@ -268,11 +287,7 @@ export default function BeritaAgendaSection({
                                 to={`/${locale}/agenda-kegiatan`}
                                 className="inline-flex items-center gap-1 text-sm font-medium text-[var(--brand-primary)] transition-colors hover:text-[var(--brand-primary)] dark:text-[var(--brand-primary)] dark:hover:text-[var(--brand-primary)]"
                             >
-                                {locale === 'ar'
-                                    ? 'عرض جميع الأحداث'
-                                    : locale === 'en'
-                                      ? 'View All Events'
-                                      : 'Lihat Semua Agenda'}
+                                {t.view_all_events}
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
                         </div>

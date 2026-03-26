@@ -21,6 +21,36 @@ interface Props {
     locale: string;
 }
 
+const LABELS: Record<string, Record<string, string>> = {
+    id: {
+        no: 'No',
+        jabatan: 'Jabatan',
+        nama_dosen: 'Nama Dosen',
+        email: 'Email',
+        telepon: 'Telepon',
+        jabatan_count: 'jabatan',
+        dosen_aktif: 'dosen aktif',
+    },
+    en: {
+        no: 'No',
+        jabatan: 'Position',
+        nama_dosen: 'Lecturer Name',
+        email: 'Email',
+        telepon: 'Phone',
+        jabatan_count: 'positions',
+        dosen_aktif: 'active lecturers',
+    },
+    ar: {
+        no: 'رقم',
+        jabatan: 'المنصب',
+        nama_dosen: 'اسم المحاضر',
+        email: 'البريد الإلكتروني',
+        telepon: 'الهاتف',
+        jabatan_count: 'مناصب',
+        dosen_aktif: 'محاضرين نشطين',
+    },
+};
+
 interface TableRow {
     jabatan: string;
     jabatanCount: number;
@@ -60,6 +90,8 @@ export default function StrukturOrganisasiSection({
     const totalLecturers = rows.length;
     const totalJabatan = groupedEntries.length;
 
+    const t = LABELS[locale] || LABELS.id;
+
     const formatName = (dosen: Dosen): string => {
         const prefix = dosen.title_prefix ? `${dosen.title_prefix} ` : '';
         const suffix = dosen.title_suffix ? `, ${dosen.title_suffix}` : '';
@@ -79,7 +111,7 @@ export default function StrukturOrganisasiSection({
                         {title}
                     </h2>
                     <p className="mt-2 text-sm text-gray-500">
-                        {totalJabatan} jabatan • {totalLecturers} dosen aktif
+                        {totalJabatan} {t.jabatan_count} • {totalLecturers} {t.dosen_aktif}
                     </p>
                 </div>
 
@@ -88,11 +120,11 @@ export default function StrukturOrganisasiSection({
                         <table className="min-w-full text-left text-sm">
                             <thead className="bg-gray-100 text-xs font-semibold text-gray-500 uppercase">
                                 <tr>
-                                    <th className="px-4 py-3">No</th>
-                                    <th className="px-4 py-3">Jabatan</th>
-                                    <th className="px-4 py-3">Nama Dosen</th>
-                                    <th className="px-4 py-3">Email</th>
-                                    <th className="px-4 py-3">Telepon</th>
+                                    <th className="px-4 py-3">{t.no}</th>
+                                    <th className="px-4 py-3">{t.jabatan}</th>
+                                    <th className="px-4 py-3">{t.nama_dosen}</th>
+                                    <th className="px-4 py-3">{t.email}</th>
+                                    <th className="px-4 py-3">{t.telepon}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -164,7 +196,7 @@ export default function StrukturOrganisasiSection({
                                             </p>
                                             <div className="mt-1 space-y-1 text-xs text-gray-600">
                                                 <p>
-                                                    Email:{' '}
+                                                    {t.email}:{' '}
                                                     {dosen.email ? (
                                                         <a
                                                             href={`mailto:${dosen.email}`}
@@ -177,7 +209,7 @@ export default function StrukturOrganisasiSection({
                                                     )}
                                                 </p>
                                                 <p>
-                                                    Telepon:{' '}
+                                                    {t.telepon}:{' '}
                                                     {dosen.phone ? (
                                                         <a
                                                             href={toTelHref(

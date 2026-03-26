@@ -68,6 +68,12 @@ function getLabel(item: StatItem, locale: string): string {
     );
 }
 
+const STATS_LABELS: Record<string, { source: string; last_update: string }> = {
+    id: { source: 'Sumber', last_update: 'Pembaruan Terakhir' },
+    en: { source: 'Source', last_update: 'Last Update' },
+    ar: { source: 'المصدر', last_update: 'آخر تحديث' },
+};
+
 function parseChartData(dataStr?: string) {
     if (!dataStr) return [];
 
@@ -100,6 +106,8 @@ export function StatsSection({
         dynamic_data && dynamic_data.length > 0
             ? dynamic_data
             : data.items || [];
+
+    const statsT = STATS_LABELS[locale] || STATS_LABELS.id;
 
     if (items.length === 0) return null;
 
@@ -185,12 +193,12 @@ export function StatsSection({
                                     </h3>
                                     {item.source && (
                                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                            Source: {item.source}
+                                            {statsT.source}: {item.source}
                                         </p>
                                     )}
                                     {item.last_update && (
                                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            Last Update: {item.last_update}
+                                            {statsT.last_update}: {item.last_update}
                                         </p>
                                     )}
                                 </div>

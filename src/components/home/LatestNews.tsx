@@ -7,6 +7,12 @@ interface NewsSectionProps {
     news: News[];
 }
 
+const NEWS_LABELS: Record<string, { no_image: string }> = {
+    id: { no_image: 'Tanpa Gambar' },
+    en: { no_image: 'No Image' },
+    ar: { no_image: 'بدون صورة' },
+};
+
 function formatDate(dateString: string, locale: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString(
@@ -102,7 +108,7 @@ export default function LatestNews({ news }: NewsSectionProps) {
                                 ) : (
                                     <div className="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-700">
                                         <span className="text-gray-400">
-                                            No Image
+                                            {(NEWS_LABELS[lang] || NEWS_LABELS.id).no_image}
                                         </span>
                                     </div>
                                 )}
@@ -158,7 +164,7 @@ export default function LatestNews({ news }: NewsSectionProps) {
                                     ) : (
                                         <div className="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-700">
                                             <span className="text-xs text-gray-400">
-                                                No Image
+                                                {(NEWS_LABELS[lang] || NEWS_LABELS.id).no_image}
                                             </span>
                                         </div>
                                     )}

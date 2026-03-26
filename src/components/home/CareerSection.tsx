@@ -7,6 +7,12 @@ interface CareerSectionProps {
     careerPosts: Career[];
 }
 
+const CAREER_LABELS: Record<string, { deadline: string }> = {
+    id: { deadline: 'Batas Waktu' },
+    en: { deadline: 'Deadline' },
+    ar: { deadline: 'الموعد النهائي' },
+};
+
 function formatDate(dateString: string, locale: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString(
@@ -104,7 +110,7 @@ export default function CareerSection({ careerPosts }: CareerSectionProps) {
                                     {featured.deadline && (
                                         <span className="flex items-center gap-1 text-red-500">
                                             <Clock className="h-3.5 w-3.5" />
-                                            Deadline:{' '}
+                                            {(CAREER_LABELS[lang] || CAREER_LABELS.id).deadline}:{' '}
                                             {formatDate(
                                                 featured.deadline,
                                                 lang,

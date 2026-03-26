@@ -139,8 +139,14 @@ interface SingleSectionProps {
     hasSlider?: boolean;
 }
 
+const ERROR_LABELS: Record<string, { prefix: string; suffix: string }> = {
+    id: { prefix: 'Section', suffix: 'gagal dimuat.' },
+    en: { prefix: 'Section', suffix: 'failed to load.' },
+    ar: { prefix: 'القسم', suffix: 'فشل في التحميل.' },
+};
+
 class SectionErrorBoundary extends Component<
-    { type: string; children: ReactNode },
+    { type: string; locale: string; children: ReactNode },
     { hasError: boolean }
 > {
     state = { hasError: false };
@@ -174,9 +180,13 @@ class SectionErrorBoundary extends Component<
 
     render(): ReactNode {
         if (this.state.hasError) {
+            const labels = ERROR_LABELS[this.props.locale] || ERROR_LABELS.id;
             return (
-                <div className="mx-auto my-6 max-w-7xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                    Section `{this.props.type}` gagal dimuat.
+                <div
+                    className="mx-auto my-6 max-w-7xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
+                    dir={this.props.locale === 'ar' ? 'rtl' : 'ltr'}
+                >
+                    {labels.prefix} `{this.props.type}` {labels.suffix}
                 </div>
             );
         }
@@ -200,9 +210,14 @@ function SectionSkeleton({ type }: { type: string }) {
     );
 }
 
-function renderAsyncSection(type: string, node: ReactNode) {
+function renderAsyncSection(
+    key: number,
+    type: string,
+    locale: string,
+    node: ReactNode,
+) {
     return (
-        <SectionErrorBoundary type={type}>
+        <SectionErrorBoundary key={key} type={type} locale={locale}>
             <Suspense fallback={<SectionSkeleton type={type} />}>
                 {node}
             </Suspense>
@@ -520,9 +535,10 @@ export function SectionRenderer({ sections, locale }: SectionRendererProps) {
         <>
             {sections.map((section) =>
                 renderAsyncSection(
+                    section.id,
                     section.type,
+                    locale,
                     <SingleSection
-                        key={section.id}
                         section={section}
                         locale={locale}
                         hasSlider={hasSlider}
