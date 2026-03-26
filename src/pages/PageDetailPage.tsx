@@ -53,12 +53,11 @@ export default function PageDetailPage() {
         enabled: !!slug,
     });
 
-    // Map sections to SectionWithData format (moved BEFORE any early returns)
+    // Map sections to SectionWithData format - trust backend order (no client sort)
     const sectionsWithData: SectionWithData[] = useMemo(() => {
         if (!page?.sections) return [];
         return page.sections
             .filter((s) => s.is_active)
-            .sort((a, b) => a.order - b.order)
             .map((s) => ({
                 id: s.id,
                 type: s.type,

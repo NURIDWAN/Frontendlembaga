@@ -1,43 +1,84 @@
+import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { fetchHome } from '@/api/home';
+import { fetchHomePage } from '@/api/pages';
 import { useInstitution } from '@/context/InstitutionContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { Loading } from '@/components/ui/Loading';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { WebSiteJsonLd } from '@/components/seo/json-ld';
-import HeroSlider from '@/components/home/HeroSlider';
-import QuickLinks from '@/components/home/QuickLinks';
-import LatestNews from '@/components/home/LatestNews';
-import UpcomingEvents from '@/components/home/UpcomingEvents';
-import PartnersSection from '@/components/home/PartnersSection';
-import TestimonialsSection from '@/components/home/TestimonialsSection';
-import AnnouncementsSection from '@/components/home/AnnouncementsSection';
-import LecturerColumnSection from '@/components/home/LecturerColumnSection';
-import CareerSection from '@/components/home/CareerSection';
+import {
+    SectionRenderer,
+    preloadSectionComponents,
+    type SectionWithData,
+} from '@/components/public/sections/SectionRenderer';
 
 export default function HomePage() {
     const { institution } = useInstitution();
-    const { withLocale } = useLanguage();
-    const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ['home'],
-        queryFn: fetchHome,
+    const { lang, withLocale } = useLanguage();
+
+    const {
+        data: page,
+        isLoading,
+        error,
+        refetch,
+    } = useQuery({
+        queryKey: ['homepage'],
+        queryFn: fetchHomePage,
         staleTime: 1000 * 60 * 5,
     });
 
+    // Map sections to SectionWithData format - trust backend order (no client sort)
+    const sectionsWithData: SectionWithData[] = useMemo(() => {
+        if (!page?.sections) return [];
+        return page.sections
+            .filter((s) => s.is_active)
+            .map((s) => ({
+                id: s.id,
+                type: s.type,
+                data: s.data,
+                order: s.order,
+                is_active: s.is_active,
+                dynamic_data: s.dynamic_data,
+            }));
+    }, [page?.sections]);
+
+    // Preload priority section components
+    const sectionTypes = useMemo(
+        () => sectionsWithData.map((s) => s.type),
+        [sectionsWithData],
+    );
+
+    useEffect(() => {
+        if (sectionTypes.length === 0) return;
+        preloadSectionComponents(
+            sectionTypes.filter((type) =>
+                ['slider', 'hero', 'quick_links', 'berita_agenda'].includes(
+                    type,
+                ),
+            ),
+        );
+    }, [sectionTypes]);
+
     if (isLoading) return <Loading />;
-    if (error || !data) return <ErrorState onRetry={() => refetch()} />;
+    if (error || !page) return <ErrorState onRetry={() => refetch()} />;
 
     const siteUrl = typeof window !== 'undefined' ? window.location.origin : '';
 
     return (
         <>
             <Helmet>
-                <title>{institution?.name || 'Beranda'}</title>
+                <title>{page.meta_title || institution?.name || 'Beranda'}</title>
                 <meta
                     name="description"
-                    content={`Website resmi ${institution?.name || 'Lembaga'}`}
+                    content={
+                        page.meta_description ||
+                        `Website resmi ${institution?.name || 'Lembaga'}`
+                    }
                 />
+                {page.meta_keywords && (
+                    <meta name="keywords" content={page.meta_keywords} />
+                )}
             </Helmet>
             <WebSiteJsonLd
                 name={institution?.name || ''}
@@ -45,49 +86,10 @@ export default function HomePage() {
                 searchUrl={`${siteUrl}${withLocale('/pencarian')}?q={search_term_string}`}
             />
 
-            {/* Section 1: Hero Slider */}
-            {data.sliders.length > 0 && <HeroSlider sliders={data.sliders} />}
-
-            {/* Section 2: Quick Links */}
-            {data.quick_links.length > 0 && (
-                <QuickLinks
-                    quickLinks={data.quick_links}
-                    hasSlider={data.sliders.length > 0}
-                />
-            )}
-
-            {/* Section 3: News / Berita */}
-            {data.news.length > 0 && <LatestNews news={data.news} />}
-
-            {/* Section 4: Events / Agenda */}
-            {data.events.length > 0 && <UpcomingEvents events={data.events} />}
-
-            {/* Section 5: Partners / Kolaborasi */}
-            {data.partners.length > 0 && (
-                <PartnersSection partners={data.partners} />
-            )}
-
-            {/* Section 6: Testimonials */}
-            {data.testimonials.length > 0 && (
-                <TestimonialsSection testimonials={data.testimonials} />
-            )}
-
-            {/* Section 7: Pengumuman */}
-            {data.announcements.length > 0 && (
-                <AnnouncementsSection announcements={data.announcements} />
-            )}
-
-            {/* Section 8: Kolom Dosen */}
-            {data.lecturer_columns.length > 0 && (
-                <LecturerColumnSection
-                    lecturerColumns={data.lecturer_columns}
-                />
-            )}
-
-            {/* Section 9: Informasi Karir */}
-            {data.career_posts.length > 0 && (
-                <CareerSection careerPosts={data.career_posts} />
-            )}
+            {/* Render sections in DB order via SectionRenderer */}
+            <div dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+                <SectionRenderer sections={sectionsWithData} locale={lang} />
+            </div>
         </>
     );
 }
